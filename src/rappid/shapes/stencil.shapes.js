@@ -337,7 +337,7 @@ const Message = dia.Element.define(
 );
 
 export const Link = dia.Link.define(
-  'app.Link',
+  'stencil.Link',
   {
     attrs: {
       root: {

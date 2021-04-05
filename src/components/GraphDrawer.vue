@@ -13,6 +13,13 @@
       <q-page-container style="">
         <div class="q-pa-md">
           <q-btn color="primary" label="Get Json" ref="getJsonRef" />
+          <q-btn
+            class="q-ml-xs"
+            color="primary"
+            label="Save Json"
+            :disabled="!json"
+            @click="saveJsonToLocalStorage"
+          />
           <div class="jsonData">
             <textarea
               placeholder='"cells": [{ "type": "app.Message"}]'
@@ -55,9 +62,10 @@
 </style>
 
 <script>
-import { dia, ui, util, g, shapes } from '@clientio/rappid';
+import { dia, ui, shapes } from '@clientio/rappid';
 import { stencilConfig } from '../rappid/stencil.config';
 import '../rappid/shapes/stencil.shapes';
+import { mapActions, mapGetters } from 'vuex';
 export default {
   name: 'GraphDrawer',
   data() {
@@ -71,16 +79,22 @@ export default {
   },
 
   methods: {
-    getJson() {
-      this.json = this.graph.toJson();
+    ...mapActions(['saveJson']),
+    saveJsonToLocalStorage() {
+      this.saveJson(this.json);
     },
   },
 
+  computed: {
+    ...mapGetters(['getJsonData']),
+  },
+
   mounted() {
-    const graph = (this.graph = new dia.Graph());
+    const graph = (this.graph = new dia.Graph({}, { cellNamespace: shapes }));
     const paper = (this.paper = new dia.Paper({
       width: '100%',
       height: '100%',
+      cellViewNamespace: shapes,
       el: this.$refs.canvas,
       model: graph,
       linkPinning: false,
@@ -90,6 +104,19 @@ export default {
         name: 'rounded',
       },
       defaultLink: () => new shapes.stencil.Link(),
+      validateConnection: (
+        sourceView,
+        sourceMagnet,
+        targetView,
+        targetMagnet
+      ) => {
+        if (sourceView === targetView) return false;
+        if (targetView.findAttribute('port-group', targetMagnet) !== 'in')
+          return false;
+        if (sourceView.findAttribute('port-group', sourceMagnet) !== 'out')
+          return false;
+        return true;
+      },
       background: {
         color: '#F8F9FA',
       },
@@ -112,6 +139,10 @@ export default {
     );
 
     stencil.load(stencilShapes);
+
+    if (this.getJsonData) {
+      graph.fromJSON(JSON.parse(this.getJsonData));
+    }
 
     this.$refs.getJsonRef.$el.addEventListener('click', () => {
       this.json = JSON.stringify(graph.toJSON(), null, 2);

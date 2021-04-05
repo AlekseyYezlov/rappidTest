@@ -8,13 +8,18 @@ export default new Vuex.Store({
     authentificated: localStorage.getItem('token') || false,
     token: localStorage.getItem('token') || null,
     emailToAuth: 'alex@gmail.com',
-    passwordToAuth: 'rappidDocumentationIsNotEasy'
+    passwordToAuth: 'rappidDocumentationIsNotEasy',
+    jsonData: localStorage.getItem('jsonCells') || null
   },
   mutations: {
     setToken(state, token) {
       state.token = token;
       state.authentificated = true;
       localStorage.setItem('token', token);
+    },
+    setJsonData(state, jsonData) {
+      state.jsonData = jsonData;
+      localStorage.setItem('jsonCells', jsonData);
     }
   },
   actions: {
@@ -38,10 +43,15 @@ export default new Vuex.Store({
         }
       }
     },
+
+    saveJson({ commit }, jsonData) {
+      commit('setJsonData', jsonData);
+    }
   },
 
   getters: {
-    authCheck: state => state.token
+    authCheck: state => state.token,
+    getJsonData: state => state.jsonData
   },
   modules: {
   }
