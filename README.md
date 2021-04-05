@@ -23,7 +23,6 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-
-credentials for login
+### Credentials for login
 email : alex@gmail.com
 pass: rappidDocumentationIsNotEasy
